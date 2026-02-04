@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声ガイドQRスキャナー</title>
+    <link rel="stylesheet" href="qr_style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>音声ガイド</h1>
+            <p class="subtitle">QRコードをスキャンしてください</p>
+        </header>
+
+        <!-- カメラビュー -->
+        <div class="camera-container">
+            <video id="video" autoplay playsinline></video>
+            <div class="scan-frame">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="scan-line"></div>
+            </div>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <!-- ステータス表示 -->
+        <div class="status-container">
+            <div id="status" class="status">カメラを起動しています...</div>
+            <div id="result" class="result"></div>
+        </div>
+
+        <!-- 説明 -->
+        <div class="instructions">
+            <div class="instruction-item">
+                <span class="icon">📱</span>
+                <p>QRコードをカメラに向けてください</p>
+            </div>
+            <div class="instruction-item">
+                <span class="icon">🔊</span>
+                <p>音声ガイドが自動的に再生されます</p>
+            </div>
+        </div>
+
+        <!-- エラー表示 -->
+        <div id="errorOverlay" class="error-overlay hidden">
+            <div class="error-content">
+                <h2>カメラエラー</h2>
+                <p id="errorMessage">カメラへのアクセスが許可されていません</p>
+                <button id="retryBtn" class="retry-btn">再試行</button>
+            </div>
+        </div>
+
+        <!-- ローディング -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>読み込み中...</p>
+        </div>
+    </div>
+
+    <!-- jsQR ライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="qr_script.js"></script>
+</body>
+</html>
