@@ -81,7 +81,7 @@ function scanQRCode() {
     requestAnimationFrame(scanQRCode);
 }
 
-// QRコードの処理
+// QRコードの処理（重要：ここを確認）
 function handleQRCode(data) {
     const now = Date.now();
     
@@ -104,18 +104,25 @@ function handleQRCode(data) {
         navigator.vibrate(200);
     }
     
-    // 音声再生ページへ遷移（自動再生パラメータ付き）
+    // 音声再生ページへ遷移
     setTimeout(() => {
-        // URLの場合はそのまま遷移
+        // URLの場合
         if (data.startsWith('http://') || data.startsWith('https://')) {
-            // 自動再生パラメータを追加
-            const url = new URL(data);
-            url.searchParams.set('autoplay', 'true');
-            window.location.href = url.toString();
+            // すでにパラメータが含まれている場合はそのまま遷移
+            if (data.includes('?id=') && data.includes('autoplay=')) {
+                window.location.href = data;
+            } else {
+                // パラメータがない場合は追加
+                const url = new URL(data);
+                if (!url.searchParams.has('autoplay')) {
+                    url.searchParams.set('autoplay', 'true');
+                }
+                window.location.href = url.toString();
+            }
         } 
         // 相対パスの場合
         else {
-            window.location.href = data + '?autoplay=true';
+            window.location.href = data;
         }
     }, 1000);
 }
@@ -149,20 +156,27 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// iOS Safariでの自動再生対策
-// ユーザーのタップを検出して音声コンテキストを初期化
-let userInteracted = false;
-document.addEventListener('touchstart', () => {
-    userInteracted = true;
-}, { once: true });
-
-// エラーハンドリング
-window.addEventListener('error', (e) => {
-    console.error('グローバルエラー:', e);
-});
-
 // デバッグ用：QRコード読み取りのテスト
-// コンソールで testQR('your-url') を実行してテスト可能
 window.testQR = function(url) {
     handleQRCode(url);
 };
+```
+
+## 🎯 QRコードに設定するURL
+
+各商品のQRコードには以下のURLを設定してください：
+```
+1. 白いコットンシャツ:
+https://kei-sinpuro.github.io/CottonT2/?id=cotton-white&autoplay=true
+
+2. デニムジャケット:
+https://kei-sinpuro.github.io/CottonT2/?id=denim-blue&autoplay=true
+
+3. 赤いポロシャツ:
+https://kei-sinpuro.github.io/CottonT2/?id=polo-red&autoplay=true
+
+4. グレーのセーター:
+https://kei-sinpuro.github.io/CottonT2/?id=sweater-gray&autoplay=true
+
+5. 黒いTシャツ:
+https://kei-sinpuro.github.io/CottonT2/?id=tshirt-black&autoplay=true
