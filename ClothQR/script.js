@@ -92,6 +92,7 @@ const audioDatabase = {
 let currentTranscriptData = [];
 let currentTranscriptIndex = -1;
 let currentAudioId = null;
+let returnTimer = null;
 
 function getAudioIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -250,6 +251,39 @@ function animate() {
     animationId = requestAnimationFrame(animate);
 }
 
+// カウントダウン表示を作成
+function showCountdown(seconds) {
+    let countdown = seconds;
+    transcript.textContent = `${countdown}秒後にQRスキャナーに戻ります...`;
+    transcript.classList.add('active');
+    
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            transcript.textContent = `${countdown}秒後にQRスキャナーに戻ります...`;
+        } else {
+            clearInterval(countdownInterval);
+            transcript.textContent = 'QRスキャナーに戻ります...';
+        }
+    }, 1000);
+}
+
+// QRスキャナーに戻る関数
+function returnToScanner() {
+    console.log('QRスキャナーに戻ります');
+    
+    // QRスキャナーのURLを取得
+    const scannerUrl = window.location.origin + '/colthQRyomikomi/';
+    
+    // フェードアウト効果
+    document.body.style.transition = 'opacity 0.5s ease';
+    document.body.style.opacity = '0';
+    
+    setTimeout(() => {
+        window.location.href = scannerUrl;
+    }, 500);
+}
+
 function startAudio() {
     if (!audioContext) {
         initAudioAnalyser();
@@ -270,9 +304,23 @@ function startAudio() {
     });
 }
 
+// 音声終了時の処理
 audio.addEventListener('ended', () => {
+    console.log('音声再生終了');
     isPlaying = false;
-    transcript.classList.remove('active');
+    
+    // カウントダウン表示
+    showCountdown(3);
+    
+    // 3秒後にQRスキャナーに戻る
+    returnTimer = setTimeout(() => {
+        returnToScanner();
+    }, 3000);
+    
+    // バイブレーションで通知
+    if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+    }
 });
 
 startOverlay.addEventListener('click', startAudio);
@@ -284,9 +332,7 @@ startBtn.addEventListener('click', (e) => {
 startTime = Date.now();
 animate();
 
-// ============================================
-// 自動再生の積極的な試行（成功率は低い）
-// ============================================
+// ページ読み込み時の処理
 window.addEventListener('DOMContentLoaded', () => {
     const audioId = getAudioIdFromURL();
     console.log('音声ID:', audioId);
@@ -297,84 +343,50 @@ window.addEventListener('DOMContentLoaded', () => {
     const autoplay = urlParams.get('autoplay');
     
     if (autoplay === 'true' && loaded) {
-        console.log('自動再生を積極的に試行します（成功率は低いです）');
+        console.log('自動再生を試行します');
         
-        // 方法1: 即座に試行
-        tryAutoplay(0);
+        let attemptCount = 0;
+        const maxAttempts = 3;
         
-        // 方法2: 少し遅延して試行
-        setTimeout(() => tryAutoplay(1), 200);
-        
-        // 方法3: さらに遅延して試行
-        setTimeout(() => tryAutoplay(2), 500);
-        
-        // 方法4: ミュート→ミュート解除の試行
-        setTimeout(() => tryMutedAutoplay(), 800);
-    }
-});
-
-function tryAutoplay(attemptNumber) {
-    console.log(`自動再生試行 #${attemptNumber + 1}`);
-    
-    // AudioContextの初期化
-    if (!audioContext) {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 512;
-            source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-        } catch (err) {
-            console.error('AudioContext初期化エラー:', err);
-            return;
-        }
-    }
-    
-    // AudioContextの再開
-    if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => {
-            console.log('AudioContext resumed');
-        });
-    }
-    
-    // 音声再生を試行
-    audio.play().then(() => {
-        console.log(`✅ 自動再生成功！(試行 #${attemptNumber + 1})`);
-        isPlaying = true;
-        startTime = Date.now();
-        startOverlay.classList.add('hidden');
-    }).catch(err => {
-        console.log(`❌ 自動再生失敗 (試行 #${attemptNumber + 1}):`, err.name);
-    });
-}
-
-function tryMutedAutoplay() {
-    console.log('ミュート状態での自動再生を試行');
-    
-    audio.muted = true;
-    audio.play().then(() => {
-        console.log('ミュート再生成功、ミュート解除を試みます');
-        
-        // 100ms後にミュート解除
-        setTimeout(() => {
-            audio.muted = false;
+        function attemptAutoplay() {
+            attemptCount++;
+            console.log(`自動再生試行 ${attemptCount}/${maxAttempts}`);
             
-            // 音が出ているか確認
-            if (!audio.muted && audio.volume > 0) {
-                console.log('✅ ミュート解除成功！自動再生達成');
+            if (!audioContext) {
+                try {
+                    initAudioAnalyser();
+                } catch (err) {
+                    console.error('AudioContext初期化エラー:', err);
+                }
+            }
+            
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            audio.play().then(() => {
+                console.log('自動再生成功！');
                 isPlaying = true;
                 startTime = Date.now();
                 startOverlay.classList.add('hidden');
-            } else {
-                console.log('❌ ミュート解除失敗');
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        }, 100);
-    }).catch(err => {
-        console.log('❌ ミュート再生も失敗:', err.name);
-    });
-}
+            }).catch(err => {
+                console.error(`自動再生失敗 (試行${attemptCount}):`, err);
+                
+                if (attemptCount < maxAttempts) {
+                    setTimeout(attemptAutoplay, 500);
+                } else {
+                    console.log('自動再生に失敗しました。ボタンを表示します。');
+                }
+            });
+        }
+        
+        setTimeout(attemptAutoplay, 100);
+    }
+});
+
+// ページを離れる前のクリーンアップ
+window.addEventListener('beforeunload', () => {
+    if (returnTimer) {
+        clearTimeout(returnTimer);
+    }
+});
