@@ -363,20 +363,6 @@ body {
     }
 }
 
-/* カメラ許可前の状態 */
-.camera-container.no-permission {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #222;
-}
-
-.camera-container.no-permission::before {
-    content: '📷';
-    font-size: 4rem;
-    opacity: 0.3;
-}
-
 /* 成功時のアニメーション */
 @keyframes success {
     0%, 100% {
@@ -389,12 +375,6 @@ body {
 
 .result.success {
     animation: success 0.5s ease;
-}
-
-/* アクセシビリティ対応 */
-*:focus {
-    outline: 3px solid #00ff88;
-    outline-offset: 2px;
 }
 
 /* 動きを減らす設定への対応 */
