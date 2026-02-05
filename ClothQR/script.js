@@ -272,8 +272,17 @@ function showCountdown(seconds) {
 function returnToScanner() {
     console.log('QRスキャナーに戻ります');
     
-    // QRスキャナーのURLを取得
-    const scannerUrl = window.location.origin + '/colthQRyomikomi/';
+    // QRスキャナーのURLを複数パターンで試す
+    const scannerUrls = [
+        'https://kei-sinpuro.github.io/colthQRyomikomi/',  // 絶対URL
+        '../colthQRyomikomi/',  // 相対URL
+        '/colthQRyomikomi/',    // ルートからの相対URL
+    ];
+    
+    // 最初のURLを使用（絶対URLが最も確実）
+    const scannerUrl = scannerUrls[0];
+    
+    console.log('遷移先URL:', scannerUrl);
     
     // フェードアウト効果
     document.body.style.transition = 'opacity 0.5s ease';
@@ -306,21 +315,25 @@ function startAudio() {
 
 // 音声終了時の処理
 audio.addEventListener('ended', () => {
-    console.log('音声再生終了');
+    console.log('==== 音声再生終了 ====');
+    console.log('現在のURL:', window.location.href);
     isPlaying = false;
     
     // カウントダウン表示
     showCountdown(3);
     
-    // 3秒後にQRスキャナーに戻る
-    returnTimer = setTimeout(() => {
-        returnToScanner();
-    }, 3000);
-    
     // バイブレーションで通知
     if (navigator.vibrate) {
         navigator.vibrate([100, 50, 100]);
     }
+    
+    // 3秒後にQRスキャナーに戻る
+    returnTimer = setTimeout(() => {
+        console.log('==== 自動復帰開始 ====');
+        returnToScanner();
+    }, 3000);
+    
+    console.log('3秒後に自動復帰します');
 });
 
 startOverlay.addEventListener('click', startAudio);
