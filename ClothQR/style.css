@@ -102,7 +102,7 @@ body {
     transform: translate(-50%, -50%) scale(0.95);
 }
 
-/* バージョン表示 */
+/* バージョン表示（追加） */
 .version {
     position: fixed;
     bottom: 10px;
