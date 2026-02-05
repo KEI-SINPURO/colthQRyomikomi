@@ -20,9 +20,7 @@ const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 const numWaves = 180;
 
-// ============================================
-// 音声データベース（ここに商品を追加）
-// ============================================
+// 音声データベース
 const audioDatabase = {
     'cotton-white': {
         file: 'CottonT-AI.mp3',
@@ -95,13 +93,11 @@ let currentTranscriptData = [];
 let currentTranscriptIndex = -1;
 let currentAudioId = null;
 
-// URLパラメータから音声IDを取得
 function getAudioIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id') || 'cotton-white'; // デフォルトは白シャツ
+    return urlParams.get('id') || 'cotton-white';
 }
 
-// 音声データを読み込む
 function loadAudioData(audioId) {
     currentAudioId = audioId;
     const audioData = audioDatabase[audioId];
@@ -113,11 +109,8 @@ function loadAudioData(audioId) {
     }
     
     currentTranscriptData = audioData.transcripts;
+    document.getElementById('btnText').textContent = audioData.title + ' - タップして再生';
     
-    // ボタンのタイトルを変更
-    document.getElementById('btnText').textContent = audioData.title;
-    
-    // 音声ファイルを設定
     if (audioData.file) {
         const source = audio.querySelector('source');
         if (source) {
@@ -126,10 +119,8 @@ function loadAudioData(audioId) {
             console.log('音声ファイル読み込み:', audioData.file);
         }
         return true;
-    } else {
-        console.warn('音声ファイルが設定されていません');
-        return false;
     }
+    return false;
 }
 
 function initAudioAnalyser() {
@@ -194,12 +185,10 @@ function animate() {
 
     layers.forEach((layer) => {
         const rotation = time * layer.speed;
-        
         ctx.beginPath();
         
         for (let i = 0; i <= numWaves; i++) {
             const angle = (i / numWaves) * Math.PI * 2 + rotation;
-            
             let dataValue = 0;
             if (isPlaying && analyser) {
                 const dataIndex = Math.floor((i / numWaves) * dataArray.length);
@@ -209,7 +198,6 @@ function animate() {
             const wave1 = Math.sin(angle * 3 + time * 4 + layer.offset) * (8 + dataValue * 12);
             const wave2 = Math.cos(angle * 5 - time * 3) * (5 + dataValue * 8);
             const pulse = Math.sin(time * 2) * (6 + avgAudio * 15);
-            
             const distance = layer.radius + wave1 + wave2 + pulse;
             
             const x = centerX + Math.cos(angle) * distance;
@@ -224,11 +212,7 @@ function animate() {
         
         ctx.closePath();
         
-        const gradient = ctx.createRadialGradient(
-            centerX, centerY, 0,
-            centerX, centerY, layer.radius + 60
-        );
-        
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, layer.radius + 60);
         const alpha = 0.2 + Math.sin(time * 2 + layer.offset) * 0.03 + (isPlaying ? avgAudio * 0.15 : 0);
         gradient.addColorStop(0, `rgba(${layer.color[0]}, ${layer.color[1]}, ${layer.color[2]}, ${alpha + 0.1})`);
         gradient.addColorStop(0.5, `rgba(${layer.color[0]}, ${layer.color[1]}, ${layer.color[2]}, ${alpha})`);
@@ -236,7 +220,6 @@ function animate() {
         
         ctx.fillStyle = gradient;
         ctx.fill();
-        
         ctx.strokeStyle = `rgba(${layer.color[0]}, ${layer.color[1]}, ${layer.color[2]}, ${0.3 + alpha})`;
         ctx.lineWidth = 2;
         ctx.shadowBlur = 20;
@@ -245,12 +228,8 @@ function animate() {
     });
 
     ctx.shadowBlur = 0;
-
     const coreSize = 40 + Math.sin(time * 6) * 15 + (isPlaying ? avgAudio * 25 : 0);
-    const coreGradient = ctx.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, coreSize
-    );
+    const coreGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, coreSize);
     coreGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
     coreGradient.addColorStop(0.3, 'rgba(255, 200, 255, 0.6)');
     coreGradient.addColorStop(0.6, 'rgba(200, 220, 255, 0.3)');
@@ -262,7 +241,6 @@ function animate() {
     ctx.shadowBlur = 40;
     ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
     ctx.fill();
-    
     ctx.shadowBlur = 0;
 
     if (isPlaying) {
@@ -306,11 +284,12 @@ startBtn.addEventListener('click', (e) => {
 startTime = Date.now();
 animate();
 
-// ページ読み込み時に音声データを設定
+// ============================================
+// 自動再生の積極的な試行（成功率は低い）
+// ============================================
 window.addEventListener('DOMContentLoaded', () => {
     const audioId = getAudioIdFromURL();
     console.log('音声ID:', audioId);
-    console.log('利用可能な音声ID:', Object.keys(audioDatabase));
     
     const loaded = loadAudioData(audioId);
     
@@ -318,56 +297,84 @@ window.addEventListener('DOMContentLoaded', () => {
     const autoplay = urlParams.get('autoplay');
     
     if (autoplay === 'true' && loaded) {
-        console.log('自動再生を試行します');
+        console.log('自動再生を積極的に試行します（成功率は低いです）');
         
-        let attemptCount = 0;
-        const maxAttempts = 3;
+        // 方法1: 即座に試行
+        tryAutoplay(0);
         
-        function attemptAutoplay() {
-            attemptCount++;
-            console.log(`自動再生試行 ${attemptCount}/${maxAttempts}`);
+        // 方法2: 少し遅延して試行
+        setTimeout(() => tryAutoplay(1), 200);
+        
+        // 方法3: さらに遅延して試行
+        setTimeout(() => tryAutoplay(2), 500);
+        
+        // 方法4: ミュート→ミュート解除の試行
+        setTimeout(() => tryMutedAutoplay(), 800);
+    }
+});
+
+function tryAutoplay(attemptNumber) {
+    console.log(`自動再生試行 #${attemptNumber + 1}`);
+    
+    // AudioContextの初期化
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 512;
+            source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+        } catch (err) {
+            console.error('AudioContext初期化エラー:', err);
+            return;
+        }
+    }
+    
+    // AudioContextの再開
+    if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+            console.log('AudioContext resumed');
+        });
+    }
+    
+    // 音声再生を試行
+    audio.play().then(() => {
+        console.log(`✅ 自動再生成功！(試行 #${attemptNumber + 1})`);
+        isPlaying = true;
+        startTime = Date.now();
+        startOverlay.classList.add('hidden');
+    }).catch(err => {
+        console.log(`❌ 自動再生失敗 (試行 #${attemptNumber + 1}):`, err.name);
+    });
+}
+
+function tryMutedAutoplay() {
+    console.log('ミュート状態での自動再生を試行');
+    
+    audio.muted = true;
+    audio.play().then(() => {
+        console.log('ミュート再生成功、ミュート解除を試みます');
+        
+        // 100ms後にミュート解除
+        setTimeout(() => {
+            audio.muted = false;
             
-            if (!audioContext) {
-                try {
-                    initAudioAnalyser();
-                } catch (err) {
-                    console.error('AudioContext初期化エラー:', err);
-                }
-            }
-            
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            
-            audio.play().then(() => {
-                console.log('自動再生成功！');
+            // 音が出ているか確認
+            if (!audio.muted && audio.volume > 0) {
+                console.log('✅ ミュート解除成功！自動再生達成');
                 isPlaying = true;
                 startTime = Date.now();
                 startOverlay.classList.add('hidden');
-            }).catch(err => {
-                console.error(`自動再生失敗 (試行${attemptCount}):`, err);
-                
-                if (attemptCount < maxAttempts) {
-                    setTimeout(attemptAutoplay, 500);
-                } else {
-                    console.log('自動再生に失敗しました。ボタンを表示します。');
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        @keyframes pulse {
-                            0%, 100% {
-                                transform: translate(-50%, -50%) scale(1);
-                            }
-                            50% {
-                                transform: translate(-50%, -50%) scale(1.05);
-                            }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                    startBtn.style.animation = 'pulse 2s infinite';
-                }
-            });
-        }
-        
-        setTimeout(attemptAutoplay, 100);
-    }
-});
+            } else {
+                console.log('❌ ミュート解除失敗');
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        }, 100);
+    }).catch(err => {
+        console.log('❌ ミュート再生も失敗:', err.name);
+    });
+}
