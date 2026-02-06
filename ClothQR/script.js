@@ -75,7 +75,7 @@ const audioDatabase = {
         ]
     },
     'maxi-s': {
-        file: 'tshirt.mp3',
+        file: 'MaxiS-AI.mp3',
         title: 'マーメイドマキシスカート',
         transcripts: [
             { time: 0.1, text: "こちらはユニクロのマーメイドマキシスカートです。" },
@@ -86,7 +86,7 @@ const audioDatabase = {
         ]
     },
     'oversized-s': {
-        file: 'sweater.mp3',
+        file: 'OversizedS-AI.mp3',
         title: 'ユーティリティオーバーサイズシャツ',
         transcripts: [
             { time: 0.1, text: "こちらはユニクロのユーティリティオーバーサイズシャツです。" },
