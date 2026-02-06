@@ -262,17 +262,22 @@ function animate() {
 
 // カウントダウン表示を作成
 function showCountdown(seconds) {
+    // returnOverlayを表示
+    const returnOverlay = document.getElementById('returnOverlay');
+    const returnCountdown = document.getElementById('returnCountdown');
+    
+    returnOverlay.classList.remove('hidden');
+    
     let countdown = seconds;
-    transcript.textContent = `${countdown}秒後にQRスキャナーに戻ります...`;
-    transcript.classList.add('active');
+    returnCountdown.textContent = `${countdown}秒後にQRスキャナーに戻ります`;
     
     const countdownInterval = setInterval(() => {
         countdown--;
         if (countdown > 0) {
-            transcript.textContent = `${countdown}秒後にQRスキャナーに戻ります...`;
+            returnCountdown.textContent = `${countdown}秒後にQRスキャナーに戻ります`;
         } else {
             clearInterval(countdownInterval);
-            transcript.textContent = 'QRスキャナーに戻ります...';
+            returnCountdown.textContent = 'QRスキャナーに戻ります...';
         }
     }, 1000);
 }
@@ -412,3 +417,20 @@ window.addEventListener('beforeunload', () => {
         clearTimeout(returnTimer);
     }
 });
+
+// 「すぐに戻る」ボタンの処理を追加
+const returnNowBtn = document.getElementById('returnNowBtn');
+const returnOverlay = document.getElementById('returnOverlay');
+
+if (returnNowBtn) {
+    returnNowBtn.addEventListener('click', () => {
+        console.log('「すぐに戻る」ボタンがクリックされました');
+        
+        if (returnTimer) {
+            clearTimeout(returnTimer);
+        }
+        
+        returnOverlay.classList.add('hidden');
+        returnToScanner();
+    });
+}
