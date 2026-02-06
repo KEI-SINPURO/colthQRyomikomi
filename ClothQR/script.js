@@ -37,7 +37,7 @@ const audioDatabase = {
         ]
     },
     'active-p': {
-        file: 'denim-jacket.mp3',
+        file: 'ActiveP-AI.mp3',
         title: 'ウルトラストレッチアクティブパンツ',
         transcripts: [
             { time: 0.1, text: "こちらはユニクロのウルトラストレッチアクティブパンツです。" },
@@ -49,7 +49,7 @@ const audioDatabase = {
         ]
     },
     'menzu-t': {
-        file: 'polo-shirt.mp3',
+        file: 'MenzuT-AI.mp3',
         title: 'メンズ用半袖Tシャツ',
         transcripts: [
             { time: 0.1, text: "こちらは、ユニクロのメンズ用半袖Tシャツです。" },
@@ -62,7 +62,7 @@ const audioDatabase = {
         ]
     },
     'waido-p': {
-        file: 'sweater.mp3',
+        file: 'WaidoP-AI.mp3',
         title: 'ウルトラストレッチワイドパンツ',
         transcripts: [
             { time: 0.1, text: "こちらはユニクロのウルトラストレッチワイドパンツです。" },
