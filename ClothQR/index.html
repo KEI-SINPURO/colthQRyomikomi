@@ -12,13 +12,20 @@
         <div class="transcript-container">
             <p id="transcript" class="transcript"></p>
         </div>
+        <!-- ★★★ ここに追加 ★★★ -->
+        <div id="startOverlay" class="start-overlay">
+            <button id="startBtn" class="start-button">
+                <span id="btnText">タップして開始</span>
+            </button>
+        </div>
     </div>
+    
     <audio id="audio" preload="auto">
         <source src="" type="audio/mpeg">
     </audio>
+    
     <div class="version">v1.0.0</div>
-    <script src="script.js"></script>
-
+    
     <!-- カウントダウン表示用のオーバーレイ -->
     <div id="returnOverlay" class="return-overlay hidden">
         <div class="return-content">
@@ -27,5 +34,7 @@
             <button id="returnNowBtn" class="return-now-btn">すぐに戻る</button>
         </div>
     </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
