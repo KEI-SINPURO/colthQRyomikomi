@@ -105,7 +105,7 @@ let returnTimer = null;
 
 function getAudioIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id') || 'cotton-white';
+    return urlParams.get('id') || 'cotton-t';
 }
 
 function loadAudioData(audioId) {
